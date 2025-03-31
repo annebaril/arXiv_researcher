@@ -1,0 +1,7 @@
+arxiv
+langchain 
+langchain-community
+# openai
+chromadb
+tiktoken
+sentence-transformers
