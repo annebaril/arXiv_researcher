@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats de recherche</title>
+</head>
+
+<body>
+    <h1>Résultats de recherche</h1>
+    {% if results %}
+    <ul>
+        {% for paper in results %}
+        <li>
+            <strong>{{ paper.page_content }}</strong>
+        </li> <br>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Aucun résultat trouvé.</p>
+    {% endif %}
+    <a href="/">Nouvelle recherche</a>
+</body>
+
+</html>

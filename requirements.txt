@@ -7,3 +7,4 @@ tiktoken
 sentence-transformers
 pyspark
 pandas
+flask

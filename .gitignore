@@ -1,5 +1,6 @@
 collect_arxiv_data/
 create_vectorestore/chroma_db/
+local_chromadb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
