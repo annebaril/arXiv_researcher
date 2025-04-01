@@ -5,3 +5,5 @@ langchain-community
 chromadb
 tiktoken
 sentence-transformers
+pyspark
+pandas
