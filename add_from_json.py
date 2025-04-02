@@ -30,7 +30,7 @@ def clean_dataframe(df):
     logger.info("Cleaning DataFrame")
     logger.info("Generate new columns")
     df_cleaned = df.select(
-        "id", "title", "abstract", "categories", "versions"
+        "id", "title", "abstract", "categories", "versions", "title", "authors"
     ).withColumn(
         "document",
         concat_ws(" ", col("title"), col("abstract"))
@@ -61,7 +61,7 @@ def embed_documents(pandas_df, embeddings, db_path, vectorstore=None):
     :param vectorstore: Optional existing vectorstore
     :return: Choma vectorstore
     """
-    metadata = [{"id": row["id"], "year": row["year"]} for _, row in pandas_df.iterrows()]
+    metadata = [{"id": row["id"], "year": row["year"], "title": row["title"], "authors": row["authors"]} for _, row in pandas_df.iterrows()]
 
 
     # Check if the vectorstore already exists
@@ -89,7 +89,7 @@ def convert_part(df, part, number_line, db_path, vectorstore):
     start = part * number_line
     # Convert to Pandas DataFrame
     logger.info(f"Converting Spark DataFrame to Pandas DataFrame")
-    pandas_df = df.select("id", "document", "year").filter(col("row_id") >= start).limit(number_line).toPandas()
+    pandas_df = df.select("id", "document", "year", "title", "authors").filter(col("row_id") >= start).limit(number_line).toPandas()
 
     logger.info(f"{pandas_df.shape[0]} line will be embedding")
     # Embed the documents

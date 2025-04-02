@@ -175,3 +175,4 @@ cython_debug/
 
 arxiv*.json
 *.json
+/*db/*
