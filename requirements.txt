@@ -1,5 +1,6 @@
+numpy==1.24.3
 arxiv
-langchain 
+langchain
 langchain-community
 # openai
 chromadb
