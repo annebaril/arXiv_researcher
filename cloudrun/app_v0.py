@@ -2,20 +2,19 @@ import os
 from google.cloud import storage
 
 from flask import Flask, request, render_template
-#from langchain.vectorstores.chroma import Chroma
 from langchain_community.vectorstores import Chroma
-#from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
 app = Flask(__name__)
 
-# Embedding model 
-embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-mpnet-base-v2')
-
+MODEL_NAME = 'sentence-transformers/all-mpnet-base-v2'
 BUCKET_NAME = "arxiv-researcher-bucket"
 GCS_PERSIST_PATH = "chroma_db/"
 LOCAL_PERSIST_PATH = "./local_chromadb/"
+
+# Embedding model 
+embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME)
 
 def get_vectorstore(gcs_directory=GCS_PERSIST_PATH, local_directory=LOCAL_PERSIST_PATH, bucket_name=BUCKET_NAME):
     # Initialize GCS client
@@ -37,7 +36,6 @@ def get_vectorstore(gcs_directory=GCS_PERSIST_PATH, local_directory=LOCAL_PERSIS
     # Retrieve all stored documents
     return vectorstore
 
-# cache ? / redit storage 
 vectorstore = get_vectorstore()
 
 
@@ -60,9 +58,7 @@ def search_similar_items():
         docs = vectorstore.similarity_search(query)
 
         # Recherche de similarité avec ChromaDB
-        results = docs[0].page_content
-
-        return render_template("results.html", results=results)
+        return render_template("results.html", results=docs)
     
     except Exception as e:
         return render_template("index.html", error=str(e))

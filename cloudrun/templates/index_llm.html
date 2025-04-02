@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot ResearchAssistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #chatbox {
+            width: 50%;
+            margin: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .user {
+            background: #daf8cb;
+            text-align: right;
+        }
+
+        .bot {
+            background: #f1f1f1;
+            text-align: left;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="text-align: center;">Discute avec le ResearchAssistant !</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Posez une question...">
+    <button onclick="sendMessage()">Envoyer</button>
+
+    <script>
+        function sendMessage() {
+            let inputField = document.getElementById("userInput");
+            let message = inputField.value.trim();
+            if (!message) return;
+
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<div class="message user">${message}</div>`;
+            inputField.value = "";
+
+            fetch("/ask", {
+                method: "POST",
+                body: JSON.stringify({ message: message }),
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    chatbox.innerHTML += `<div class="message bot">${data.response}</div>`;
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
+        }
+    </script>
+</body>
+
+</html>

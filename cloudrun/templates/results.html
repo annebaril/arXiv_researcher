@@ -12,9 +12,13 @@
     {% if results %}
     <ul>
         {% for paper in results %}
+
         <li>
-            <strong>{{ paper.page_content }}</strong>
+            <strong>Link: </strong> <a href="url"> https://arxiv.org/abs/{{ paper.metadata.id }}</a>,
+            <strong>Year: </strong> {{ paper.metadata.year }},
+            <strong>Abstract: </strong> {{ paper.page_content }}
         </li> <br>
+
         {% endfor %}
     </ul>
     {% else %}
