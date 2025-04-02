@@ -2,8 +2,10 @@ import os
 from google.cloud import storage
 
 from flask import Flask, request, render_template
-from langchain.vectorstores.chroma import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
+#from langchain.vectorstores.chroma import Chroma
+from langchain_community.vectorstores import Chroma
+#from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
 app = Flask(__name__)
@@ -11,15 +13,13 @@ app = Flask(__name__)
 # Embedding model 
 embeddings = HuggingFaceEmbeddings(model_name='sentence-transformers/all-mpnet-base-v2')
 
-# GCS => why do we need to save it locally?? 
-BUCKET_NAME = "bucket_arxiv_researcher"
+BUCKET_NAME = "arxiv-researcher-bucket"
 GCS_PERSIST_PATH = "chroma_db/"
 LOCAL_PERSIST_PATH = "./local_chromadb/"
 
 def get_vectorstore(gcs_directory=GCS_PERSIST_PATH, local_directory=LOCAL_PERSIST_PATH, bucket_name=BUCKET_NAME):
     # Initialize GCS client
     storage_client = storage.Client()
-
     bucket = storage_client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=gcs_directory)
 
@@ -62,11 +62,12 @@ def search_similar_items():
         # Recherche de similarité avec ChromaDB
         results = docs[0].page_content
 
-        return render_template("results.html", results=docs)
+        return render_template("results.html", results=results)
     
     except Exception as e:
         return render_template("index.html", error=str(e))
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
