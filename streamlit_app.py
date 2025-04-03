@@ -82,6 +82,11 @@ with tab2:
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
+        st.session_state.messages.append({
+            "role": "assistant", 
+            "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
+        })
+    
     # Conteneur pour les messages
     chat_container = st.container()
     
