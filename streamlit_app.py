@@ -9,6 +9,7 @@ import chromadb
 from langchain import hub
 
 from arxivsearcher.llm_agent import create_agent
+from arxivsearcher.api_request import search_arxiv
 
 # debuging streamlit: https://github.com/VikParuchuri/marker/issues/442
 torch.classes.__path__ = []
@@ -59,11 +60,11 @@ vectorstore, agent_executor = initialize_components()
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 # Création des onglets
-tab1, tab2 = st.tabs(["🔍 Articles Search", "💬 Chat with arXiv Searcher"])
+tab1, tab2, tab3 = st.tabs(["🔍 Articles Search in ChromaDB", "🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
 
 with tab1:
-    st.header("Articles Search - API Powered") # TO DO : API SEARCH + cite API
-    search_query = st.text_input("Search for articles!")
+    st.header("Articles Search in DB") # TO DO : API SEARCH + cite API
+    search_query = st.text_input("Search for articles!", key="chroma_db")
     if search_query:
         with st.spinner("Processing..."):
             results = retriever.invoke(search_query)
@@ -76,6 +77,20 @@ with tab1:
                 st.write("---")
 
 with tab2:
+    st.header("Articles Search in API") # TO DO : API SEARCH + cite API
+    search_query = st.text_input("Search for articles!")
+    if search_query:
+        with st.spinner("Processing..."):
+            results = search_arxiv(search_query)
+            for result in results:
+                st.write(f"**Title:** {result['title']}")
+                st.write(f"**Authors:** {result['authors']}")
+                st.write(f"**Year:** {result['year']}")               
+                st.write(f"**Abstract:** {result['summary']}")
+                st.write(f"**Link: {result['url']}**")
+                st.write("---")
+
+with tab3:
     st.header("Chat with arXiv Bot!")
     
     # Initialisation de l'historique de chat
