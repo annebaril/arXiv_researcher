@@ -11,14 +11,14 @@ dependencies = [
     "langchain (>=0.3.22,<0.4.0)",
     "arxiv",
     "langchain",
-    "langchain-community",
     "langchain-huggingface",
     "langchain_chroma",
     "chromadb",
     "tiktoken",
     "sentence-transformers",
     "streamlit",
-    "google-cloud-storage"
+    "google-cloud-storage",
+    "matplotlib"
 ]
 
 

@@ -18,7 +18,7 @@ embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
 
 LLM_MODEL = os.getenv("LLM_MODEL")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
 llm = HuggingFaceEndpoint(
     repo_id=LLM_MODEL,
     temperature=0.5,
