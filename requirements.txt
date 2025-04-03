@@ -1,0 +1,11 @@
+arxiv
+langchain 
+langchain-community
+langchain_huggingface
+# openai
+chromadb
+tiktoken
+sentence-transformers
+pyspark
+pandas
+flask
