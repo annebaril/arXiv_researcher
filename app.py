@@ -4,7 +4,7 @@ from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
 from langchain_chroma import Chroma
 from langchain import hub
 
-load_dotenv()
+load_dotenv() 
 
 from arxivsearcher.load_chroma import download_directory_from_gcs
 from arxivsearcher.retrieval import search_articles
@@ -40,7 +40,7 @@ def main():
     print("Welcome to arXiv AI searcher.")
     query = input("What do you want to know: ")
     response = agent_executor.invoke({"input": query})
-    print("Bot:", response["output"])
+    print("Bot: ", response["output"])
 
 if __name__ == "__main__":
     main()
