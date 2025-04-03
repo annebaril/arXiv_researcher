@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import torch
 from dotenv import load_dotenv
 
 from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
@@ -8,6 +9,9 @@ import chromadb
 from langchain import hub
 
 from arxivsearcher.llm_agent import create_agent
+
+# debuging streamlit: https://github.com/VikParuchuri/marker/issues/442
+torch.classes.__path__ = []
 
 # Chargement des variables d'environnement
 load_dotenv()
