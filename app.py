@@ -5,7 +5,7 @@ from langchain_chroma import Chroma
 from langchain import hub
 import chromadb
 
-load_dotenv()
+load_dotenv() 
 
 from arxivsearcher.llm_agent import create_agent
 
@@ -35,7 +35,7 @@ def main():
     print("Welcome to arXiv AI searcher.")
     query = input("What do you want to know: ")
     response = agent_executor.invoke({"input": query})
-    print("Bot:", response["output"])
+    print("Bot: ", response["output"])
 
 if __name__ == "__main__":
     main()
