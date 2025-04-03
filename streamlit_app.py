@@ -76,27 +76,32 @@ with tab1:
                 st.write("---")
 
 with tab2:
-    st.header("Chat with the agent")
+    st.header("Chat with arXiv Bot!")
     
     # Initialisation de l'historique de chat
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
-    # Affichage de l'historique des messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # Conteneur pour les messages
+    chat_container = st.container()
     
-    # Zone de saisie pour le message de l'utilisateur
-    if prompt := st.chat_input("Ask your question..."):
-        # Ajout du message de l'utilisateur à l'historique
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        # Génération de la réponse
-        with st.chat_message("assistant"):
+    # Zone de saisie fixe en bas
+    with st.container():
+        st.markdown("---")
+        if prompt := st.chat_input("Ask a question...", key="chat_input"):
+            # Ajout du message de l'utilisateur à l'historique
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            
+            # Génération de la réponse
             with st.spinner("The agent is thinking..."):
                 response = agent_executor.invoke({"input": prompt})
-                st.markdown(response["output"])
-                st.session_state.messages.append({"role": "assistant", "content": response["output"]}) 
+                st.session_state.messages.append({"role": "assistant", "content": response["output"]})
+            
+            # Rafraîchir l'affichage des messages
+            st.rerun()
+    
+    # Affichage des messages dans le conteneur dédié
+    with chat_container:
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"]) 
