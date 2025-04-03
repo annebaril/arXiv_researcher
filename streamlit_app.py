@@ -59,14 +59,14 @@ def initialize_components():
 vectorstore, agent_executor = initialize_components()
 
 # Création des onglets
-tab1, tab2 = st.tabs(["🔍 Recherche d'articles", "💬 Chat avec l'agent"])
+tab1, tab2 = st.tabs(["🔍 Recherche d'articles", "💬 Chat avec arXiv Researcher"])
 
 with tab1:
     st.header("Recherche d'articles")
     search_query = st.text_input("Entrez votre requête de recherche:")
     if search_query:
         with st.spinner("Recherche en cours..."):
-            results = search_articles(search_query)
+            results = search_articles(vectorstore, search_query)
             for result in results:
                 st.write(f"**Titre:** {result['title']}")
                 st.write(f"**Auteurs:** {result['authors']}")
