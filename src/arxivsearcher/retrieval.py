@@ -1,4 +1,3 @@
-import os
 from langchain_core.tools import tool
 from langchain_chroma import Chroma
 
