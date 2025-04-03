@@ -2,7 +2,7 @@ import os
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from dotenv import load_dotenv
 from arxivsearcher.retrieval import create_search_tool
-from arxivsearcher.chroma_qa import semantic_search
+#from arxivsearcher.chroma_qa import semantic_search
 
 
 load_dotenv()

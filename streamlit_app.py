@@ -1,44 +1,40 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
+
 from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
 from langchain_chroma import Chroma
+import chromadb
 from langchain import hub
 
-from arxivsearcher.load_chroma import download_directory_from_gcs
-from arxivsearcher.retrieval import search_articles
 from arxivsearcher.llm_agent import create_agent
 
 # Chargement des variables d'environnement
 load_dotenv()
 
 # Configuration initiale
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-GCS_PERSIST_PATH = os.getenv("GCS_PERSIST_PATH")
-LOCAL_PERSIST_PATH = os.getenv("LOCAL_PERSIST_PATH")
+CHROMADB_HOST = os.getenv("CHROMADB_HOST")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 LLM_MODEL = os.getenv("LLM_MODEL")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 AGENT_PROMPT = os.getenv("AGENT_PROMPT")
 
 # Initialisation de l'application Streamlit
 st.set_page_config(
-    page_title="arXiv Researcher",
+    page_title="arXiv Searcher",
     page_icon="📚",
     layout="wide"
 )
 
-st.title("📚 arXiv Researcher")
+st.title("📚 arXiv Searcher")
 
 # Initialisation des composants
 @st.cache_resource
-def initialize_components():
-    # Téléchargement de la base de données Chroma
-    download_directory_from_gcs(GCS_PERSIST_PATH, LOCAL_PERSIST_PATH, BUCKET_NAME)
-    
+def initialize_components(): 
     # Initialisation des embeddings
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-    vectorstore = Chroma(persist_directory=LOCAL_PERSIST_PATH, embedding_function=embeddings)
+    chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
+    vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
     
     # Initialisation du LLM
     llm = HuggingFaceEndpoint(
@@ -49,32 +45,34 @@ def initialize_components():
     )
     
     # Initialisation de l'agent
-    tools = [search_articles]
     prompt = hub.pull(AGENT_PROMPT)
-    agent_executor = create_agent(llm, tools, prompt)
+    agent_executor = create_agent(vectorstore, llm, prompt)
     
     return vectorstore, agent_executor
 
 # Initialisation des composants
 vectorstore, agent_executor = initialize_components()
+retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 # Création des onglets
-tab1, tab2 = st.tabs(["🔍 Recherche d'articles", "💬 Chat avec arXiv Researcher"])
+tab1, tab2 = st.tabs(["🔍 Articles Search", "💬 Chat with arXiv Searcher"])
 
 with tab1:
-    st.header("Recherche d'articles")
-    search_query = st.text_input("Entrez votre requête de recherche:")
+    st.header("Articles Search - API Powered") # TO DO : API SEARCH + cite API
+    search_query = st.text_input("Search for articles!")
     if search_query:
-        with st.spinner("Recherche en cours..."):
-            results = search_articles(vectorstore, search_query)
+        with st.spinner("Processing..."):
+            results = retriever.invoke(search_query)
             for result in results:
-                st.write(f"**Titre:** {result['title']}")
-                st.write(f"**Auteurs:** {result['authors']}")
-                st.write(f"**Résumé:** {result['abstract']}")
+                st.write(f"**Title:** {result.metadata['title']}")
+                st.write(f"**Authors:** {result.metadata['authors']}")
+                st.write(f"**Year:** {result.metadata['year']}")               
+                st.write(f"**Abstract:** {result.page_content}")
+                st.write(f"**Link: https://arxiv.org/abs/{result.id}**")
                 st.write("---")
 
 with tab2:
-    st.header("Chat avec l'agent")
+    st.header("Chat with the agent")
     
     # Initialisation de l'historique de chat
     if "messages" not in st.session_state:
@@ -86,7 +84,7 @@ with tab2:
             st.markdown(message["content"])
     
     # Zone de saisie pour le message de l'utilisateur
-    if prompt := st.chat_input("Posez votre question..."):
+    if prompt := st.chat_input("Ask your question..."):
         # Ajout du message de l'utilisateur à l'historique
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -94,7 +92,7 @@ with tab2:
         
         # Génération de la réponse
         with st.chat_message("assistant"):
-            with st.spinner("L'agent réfléchit..."):
+            with st.spinner("The agent is thinking..."):
                 response = agent_executor.invoke({"input": prompt})
                 st.markdown(response["output"])
                 st.session_state.messages.append({"role": "assistant", "content": response["output"]}) 
