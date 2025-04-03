@@ -1,12 +1,11 @@
 import os
 import sys
 
+import chromadb
 from loguru import logger
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, concat_ws, lower, regexp_replace, trim
 from pyspark.sql.functions import monotonically_increasing_id, col
-
-import pandas as pd
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
@@ -50,8 +49,7 @@ def clean_dataframe(df):
     df_cleaned = df_cleaned.filter(col("document") != "")
     return df_cleaned
 
-
-def embed_documents(pandas_df, embeddings, db_path, vectorstore=None):
+def embed_documents(pandas_df, vectorstore):
     """
     Embed the documents in the DataFrame using the specified embeddings model.
     
@@ -63,20 +61,13 @@ def embed_documents(pandas_df, embeddings, db_path, vectorstore=None):
     """
     metadata = [{"id": row["id"], "year": row["year"], "title": row["title"], "authors": row["authors"]} for _, row in pandas_df.iterrows()]
 
-
-    # Check if the vectorstore already exists
-    if vectorstore is None:
-        logger.info(f"Vectorstore not exists, initiate a vectorstore with the data")
-
-        vectorstore = Chroma.from_texts(pandas_df['document'].tolist(), embedding=embeddings, metadatas = metadata, ids=pandas_df['id'].tolist() ,persist_directory=db_path)
-    else:
-        # Add new documents to the existing vectorstore
-        logger.info(f"Vectorstore already exists, Add new documents to the existing vectorstore")
-        vectorstore.add_texts(texts=pandas_df['document'].tolist(), metadatas=metadata, ids=pandas_df['id'].tolist())
+    # Add new documents to the existing vectorstore
+    logger.info(f"Vectorstore already exists, Add new documents to the existing vectorstore")
+    vectorstore.add_texts(texts=pandas_df['document'].tolist(), metadatas=metadata, ids=pandas_df['id'].tolist())
 
     return vectorstore
 
-def convert_part(df, part, number_line, db_path, vectorstore):
+def convert_part(df, part, number_line, vectorstore):
     """
     Convert a part of the DataFrame to a Pandas DataFrame and embed the documents.
     
@@ -92,19 +83,34 @@ def convert_part(df, part, number_line, db_path, vectorstore):
     pandas_df = df.select("id", "document", "year", "title", "authors").filter(col("row_id") >= start).limit(number_line).toPandas()
 
     logger.info(f"{pandas_df.shape[0]} line will be embedding")
-    # Embed the documents
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     
-    embed_documents(pandas_df, embeddings, db_path, vectorstore)
+    return embed_documents(pandas_df, vectorstore)
 
 
 def main():
-    json_name = 'arxiv-metadata-oai-snapshot.json'
-    db_name = 'chroma_new_db'
+    JSON_NAME = 'arxiv-metadata-oai-snapshot.json'
+    MODEL_NAME = 'sentence-transformers/all-mpnet-base-v2'
+    persist_directory = '/index_data'
+    chroma_ip = '34.163.92.97'
+    chroma_port = 8000
+
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(current_dir, "data", json_name)
-    persistent_dir = os.path.join(current_dir, "db", db_name)
+    json_path = os.path.join(current_dir, "data", JSON_NAME)
     line_per_part = 5000
+
+    # Embed the documents
+    embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME)
+    chroma_client = chromadb.HttpClient(host=chroma_ip, port=chroma_port)
+    
+    try:
+        heartbeat = chroma_client.heartbeat()
+        logger.info(f"heartbeat du client est de: {heartbeat}")
+    except:
+        raise FileNotFoundError(
+            f"Le serveur est down."
+        )
+
+    vectorstore = Chroma(persist_directory=persist_directory, client=chroma_client, embedding_function=embeddings)
 
     # Ensure the json file exists
     if not os.path.exists(json_path):
@@ -117,22 +123,16 @@ def main():
         .getOrCreate()
 
     # Load the JSON file into a DataFrame
-    logger.info(f"Loading JSON file: {json_name}")
+    logger.info(f"Loading JSON file: {JSON_NAME}")
     df = load_json_to_dataframe(json_path, spark)
 
     # Clean the DataFrame
     df_cleaned = clean_dataframe(df)
 
-    # Check if the vectorstore already exists
-    if not os.path.exists(persistent_dir):
-        vectorstore = None
-    else:
-        vectorstore = Chroma(persist_directory=persistent_dir)
-
     if len(sys.argv) == 2:
         logger.info(f"Argument provided, using value: {sys.argv[1]}")
         number_part = sys.argv[1]
-        convert_part(df_cleaned, int(number_part), line_per_part, persistent_dir, vectorstore)
+        convert_part(df_cleaned, int(number_part), line_per_part, vectorstore)
     elif len(sys.argv) > 2:
         raise(TypeError)
     else:
@@ -143,11 +143,10 @@ def main():
         if nbr_line_dataframe % line_per_part != 0:
             number_part += 1
         logger.info(f"{number_part} parts identify")
-        
-        vectorstore = None
+
         for i in range(0, number_part):
             logger.info(f"Part n°{i}")
-            vectorstore = convert_part(df_cleaned, i, line_per_part, persistent_dir, vectorstore)
+            vectorstore = convert_part(df_cleaned, i, line_per_part, vectorstore)
 
 if __name__ == "__main__":
     main()
