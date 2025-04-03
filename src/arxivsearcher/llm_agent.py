@@ -2,14 +2,17 @@ import os
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from dotenv import load_dotenv
 from arxivsearcher.retrieval import create_search_tool
-from arxivsearcher.chroma_qa import semantic_search
-
+from arxivsearcher.chroma_qa import create_semantic_tool
+from arxivsearcher.trend_analysis import create_trend_tool
 
 load_dotenv()
 
 def create_agent(vectorstore, llm, prompt):
     search_articles_tool = create_search_tool(vectorstore)
-    tools = [search_articles_tool]
+    semantic_tool = create_semantic_tool(llm, vectorstore)
+    trend_tool = create_trend_tool(vectorstore)
+
+    tools = [search_articles_tool, semantic_tool, trend_tool]
     agent = create_structured_chat_agent(llm, tools, prompt)
 
     agent_executor = AgentExecutor.from_agent_and_tools(
