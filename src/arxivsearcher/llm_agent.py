@@ -13,7 +13,7 @@ def create_agent(vectorstore, llm, prompt):
     trend_tool = create_trend_tool(vectorstore)
 
     tools = [search_articles_tool, semantic_tool, trend_tool]
-    agent = create_structured_chat_agent(llm, tools, prompt)
+    agent = create_structured_chat_agent(llm=llm, tools=tools, prompt=prompt)
 
     agent_executor = AgentExecutor.from_agent_and_tools(
         agent=agent,
