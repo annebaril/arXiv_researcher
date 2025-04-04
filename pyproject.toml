@@ -12,12 +12,12 @@ dependencies = [
     "arxiv",
     "langchain",
     "langchain-huggingface",
+    "langchain-google-vertexai",
     "langchain_chroma",
     "chromadb",
     "tiktoken",
     "sentence-transformers",
     "streamlit",
-    "google-cloud-storage",
     "matplotlib"
 ]
 
