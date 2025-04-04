@@ -2,6 +2,7 @@ arxiv
 langchain 
 langchain-community
 langchain_huggingface
+langchain-groq
 # openai
 chromadb
 tiktoken
