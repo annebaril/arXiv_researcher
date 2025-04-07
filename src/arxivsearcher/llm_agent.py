@@ -19,6 +19,7 @@ def create_agent(vectorstore, llm, prompt):
         agent=agent,
         tools=tools,
         verbose=os.getenv("VERBOSE"),  # Use the conversation memory to maintain context
-        handle_parsing_errors=True,  # Handle any parsing errors gracefully
+        handle_parsing_errors=True,
+        return_intermediate_steps=True  # Handle any parsing errors gracefully
     )
     return agent_executor

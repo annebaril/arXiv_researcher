@@ -1,5 +1,7 @@
 .envrc
 test.ipynb
+stream.py
+stream3.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
