@@ -15,4 +15,4 @@ def search_arxiv(query, max_results=3):
             "url": result.entry_id,
             "year": result.published
         })
-    return results
+    return results 

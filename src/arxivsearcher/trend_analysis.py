@@ -3,7 +3,7 @@ from collections import defaultdict
 
 def trend_analysis(vectorstore, title: str, start_year: int, end_year: int) -> None:
     """Trend analysis, plot the trend of number of articles"""
-    docs = vectorstore.similarity_search(title, k=500) 
+    docs = vectorstore.similarity_search(title, k=5000) 
 
     yearly_counts = defaultdict(int)
     for doc in docs:
@@ -20,7 +20,7 @@ def trend_analysis(vectorstore, title: str, start_year: int, end_year: int) -> N
     plt.xlabel("Year")
     plt.xlim((start_year, end_year))
     plt.ylabel("Number of articles")
-    plt.title(f"Trend of in coding articles in arxiv ({start_year}-{end_year})")
+    plt.title(f"Trend of {title} in arXiv's articles ({start_year}-{end_year})")
     plt.grid(True)
     
     return fig

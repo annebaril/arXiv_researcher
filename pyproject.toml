@@ -6,19 +6,16 @@ authors = [{ name = "Celia ZHANG", email = "celiazhang349@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "langchain (>=0.3.22,<0.4.0)",
     "arxiv",
-    "langchain",
+    "langchain (>=0.3.22,<0.4.0)",
     "langchain-huggingface",
     "langchain-google-vertexai",
     "langchain_chroma",
     "chromadb",
-    "tiktoken",
     "sentence-transformers",
     "streamlit (>=1.18.0)",
     "matplotlib",
 ]
-
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

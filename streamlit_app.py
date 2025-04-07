@@ -13,8 +13,6 @@ from arxivsearcher.llm_agent import create_agent
 from arxivsearcher.api_request import search_arxiv
 from arxivsearcher.trend_analysis import trend_analysis
 
-import matplotlib.pyplot as plt
-
 # Debugging Streamlit: https://github.com/VikParuchuri/marker/issues/442
 torch.classes.__path__ = []
 
@@ -60,7 +58,6 @@ vectorstore, agent_executor = initialize_components()
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 # Création des onglets
-#tab1, tab2 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
 tab1, tab2, tab3 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher", "📈 Trend Analysis"])
 
 # Onglet 1 - Articles Search
@@ -146,7 +143,12 @@ with tab2:
         with st.spinner("The agent is thinking..."):
             response = agent_executor.invoke({"input": st.session_state.messages[-1]["content"]})
             with st.chat_message("assistant"):
-                st.markdown(response["output"])
+                # Formater la réponse pour améliorer la présentation
+                formatted_response = response["output"]
+                # Ajouter le formatage Markdown pour améliorer la lisibilité
+                formatted_response = formatted_response.replace("Title:", "**Title:**")
+                formatted_response = formatted_response.replace("Abstract:", "**Abstract:**")
+                st.markdown(formatted_response)
 
 
 # Onglet 3 - Trend Analysis

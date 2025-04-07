@@ -2,6 +2,9 @@
 test.ipynb
 stream.py
 stream3.py
+.python-version
+*.ipynb
+streamlit_app/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
