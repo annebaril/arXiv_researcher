@@ -3,9 +3,10 @@ import streamlit as st
 import torch
 from dotenv import load_dotenv
 
-from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 import chromadb
+from langchain.chat_models import init_chat_model
 from langchain import hub
 
 from arxivsearcher.llm_agent import create_agent
@@ -21,10 +22,10 @@ load_dotenv()
 CHROMADB_HOST = os.getenv("CHROMADB_HOST")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 LLM_MODEL = os.getenv("LLM_MODEL")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+MODEL_PROVIDER = os.getenv("MODEL_PROVIDER")
 AGENT_PROMPT = os.getenv("AGENT_PROMPT")
 
-# Initialisation de l'application Streamlit
+# Initialisation de l'application Streamlit 
 st.set_page_config(
     page_title="arXiv Searcher",
     page_icon="📚",
@@ -37,17 +38,12 @@ st.title("📚 arXiv Searcher")
 @st.cache_resource
 def initialize_components(): 
     # Initialisation des embeddings
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
+    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
     
     # Initialisation du LLM
-    llm = HuggingFaceEndpoint(
-        repo_id=LLM_MODEL,
-        temperature=0.5,
-        huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
-        task="text-generation"
-    )
+    llm = init_chat_model(model=LLM_MODEL, model_provider=MODEL_PROVIDER)
     
     # Initialisation de l'agent
     prompt = hub.pull(AGENT_PROMPT)
