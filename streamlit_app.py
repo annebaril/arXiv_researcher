@@ -114,7 +114,7 @@ with tab2:
         <style>
         .stChatInput {
             position: fixed;
-            bottom: 0;
+            bottom: 60px;
             left: 0;
             right: 0;
             padding: 1rem;
@@ -179,7 +179,24 @@ with tab3:
 
 # --- Footer affiché partout ---
 st.markdown("""---""")
-st.markdown(
-    "🔗 Powered by [arXiv API](https://arxiv.org/help/api) and [ChromaDB](https://www.trychroma.com/)",
-    unsafe_allow_html=True
-)
+st.markdown("""
+    <style>
+    footer {
+        visibility: hidden;
+    }
+    .footer-fix {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 0.9rem;
+        background: #f9f9f9;
+        border-top: 1px solid #eaeaea;
+    }
+    </style>
+    <div class="footer-fix">
+        🔗 Powered by <a href="https://arxiv.org/help/api" target="_blank">arXiv API</a> and <a href="https://www.trychroma.com/" target="_blank">ChromaDB</a>
+    </div>
+""", unsafe_allow_html=True)
