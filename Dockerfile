@@ -22,12 +22,12 @@ COPY streamlit_app.py ./streamlit_app.py
 COPY README.md ./
 
 # ENV variables
-ENV CHROMADB_HOST=34.163.106.5 
-ENV AGENT_PROMPT=hwchase17/structured-chat-agent
-ENV EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
-ENV LLM_MODEL=gemini-2.0-flash-lite
-ENV MODEL_PROVIDER=google_vertexai
-ENV VERBOSE=True
+ENV CHROMADB_HOST 34.163.106.5 
+ENV AGENT_PROMPT hwchase17/structured-chat-agent
+ENV EMBEDDING_MODEL sentence-transformers/all-mpnet-base-v2
+ENV LLM_MODEL gemini-2.0-flash-lite
+ENV MODEL_PROVIDER google_vertexai
+ENV VERBOSE True
 
 # Install the dependencies
 RUN pip install .
@@ -37,4 +37,4 @@ RUN pip install .
 EXPOSE $PORT
 
 # Run the application
-CMD ["streamlit", "run", "streamlit_app.py"]
+CMD ["sh", "-c", "streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0"]
