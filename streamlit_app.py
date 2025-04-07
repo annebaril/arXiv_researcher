@@ -35,13 +35,13 @@ st.set_page_config(
 st.title("📚 arXiv Searcher")
 
 # Initialisation des composants
-@st.cache_resource
+@st.cache_resource # introduit dans la version 1.18.0 de Streamlit
 def initialize_components(): 
     # Initialisation des embeddings
     chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
-    
+
     # Initialisation du LLM
     llm = init_chat_model(model=LLM_MODEL, model_provider=MODEL_PROVIDER)
     
@@ -55,24 +55,13 @@ def initialize_components():
 vectorstore, agent_executor = initialize_components()
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
+print(vectorstore)
+
+
 # Création des onglets
-tab1, tab2, tab3 = st.tabs(["🔍 Articles Search in ChromaDB", "🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
+tab1, tab2 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
 
 with tab1:
-    st.header("Articles Search in DB") # TO DO : API SEARCH + cite API
-    search_query = st.text_input("Search for articles!", key="chroma_db")
-    if search_query:
-        with st.spinner("Processing..."):
-            results = retriever.invoke(search_query)
-            for result in results:
-                st.write(f"**Title:** {result.metadata['title']}")
-                st.write(f"**Authors:** {result.metadata['authors']}")
-                st.write(f"**Year:** {result.metadata['year']}")               
-                st.write(f"**Abstract:** {result.page_content}")
-                st.write(f"**Link: https://arxiv.org/abs/{result.id}**")
-                st.write("---")
-
-with tab2:
     st.header("Articles Search in API") # TO DO : API SEARCH + cite API
     search_query = st.text_input("Search for articles!")
     if search_query:
@@ -86,7 +75,7 @@ with tab2:
                 st.write(f"**Link: {result['url']}**")
                 st.write("---")
 
-with tab3:
+with tab2:
     st.header("Chat with arXiv Bot!")
     
     # Initialisation de l'historique de chat
@@ -121,3 +110,4 @@ with tab3:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"]) 
+

@@ -10,13 +10,9 @@ load_dotenv()
 
 from arxivsearcher.llm_agent import create_agent
 
-print("hello")
 CHROMADB_HOST = os.getenv("CHROMADB_HOST")
-print("CHROMADB_HOST =", CHROMADB_HOST)
 chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
 print(chroma_client.heartbeat())
-print("done")
-
 
 # create embedding
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
