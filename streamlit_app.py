@@ -180,7 +180,7 @@ with tab3:
 
 
 # --- Footer affiché partout ---
-st.markdown("""---""")
+#st.markdown("""---""")
 st.markdown("""
     <style>
     footer {
