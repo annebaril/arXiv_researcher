@@ -101,15 +101,15 @@ with tab1:
 # Onglet 2 - Chat
 with tab2:
     st.header("Chat with arXiv Bot!")
-    
-    # Initialisation de l'historique de chat
+
+    # Initialisation du message d'accueil
     if "messages" not in st.session_state:
-        st.session_state.messages = []
-        st.session_state.messages.append({
-            "role": "assistant", 
+        st.session_state.messages = [{
+            "role": "assistant",
             "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
-        })
-    
+        }]
+
+    # Sticky input style
     st.markdown("""
         <style>
         .stChatInput {
@@ -126,24 +126,25 @@ with tab2:
         </style>
     """, unsafe_allow_html=True)
 
-        # Affichage des messages
+    # Zone de saisie
+    prompt = st.chat_input("Ask a question...", key="chat_input")
+    if prompt:
+        st.session_state.messages = [{
+            "role": "assistant",
+            "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
+        }]        
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.rerun()
+
+    # Affichage des messages (y compris après rerun)
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-        st.session_state.messages = [{
-            "role": "assistant", 
-            "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
-        }]
-
-    # Zone de saisie sticky
-    if prompt := st.chat_input("Ask a question...", key="chat_input"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    # Si le dernier message est de l'utilisateur, générer la réponse
+    if st.session_state.messages[-1]["role"] == "user":
         with st.spinner("The agent is thinking..."):
-            # Exécution de l'agent avec capture des étapes intermédiaires
-            response = agent_executor.invoke(
-                {"input": prompt}
-            )
-            st.session_state.messages.append({"role": "assistant", "content": response["output"]})
-        
-        st.rerun()
+            response = agent_executor.invoke({"input": st.session_state.messages[-1]["content"]})
+            with st.chat_message("assistant"):
+                st.markdown(response["output"])
+
