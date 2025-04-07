@@ -11,6 +11,7 @@ from langchain import hub
 
 from arxivsearcher.llm_agent import create_agent
 from arxivsearcher.api_request import search_arxiv
+from arxivsearcher.trend_analysis import trend_analysis
 
 import matplotlib.pyplot as plt
 
@@ -59,8 +60,8 @@ vectorstore, agent_executor = initialize_components()
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 # Création des onglets
-tab1, tab2 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
-
+#tab1, tab2 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher"])
+tab1, tab2, tab3 = st.tabs(["🔍 Articles Search in API", "💬 Chat with arXiv Searcher", "📈 Trend Analysis"])
 
 # Onglet 1 - Articles Search
 with tab1:
@@ -84,19 +85,18 @@ with tab1:
         # Affichage des résultats uniquement s'ils ont été chargés
         if st.session_state.search_results:
             with results_container.container():
-                for result in st.session_state.search_results:
+                l = len(st.session_state.search_results)
+                for i, result in enumerate(st.session_state.search_results):
                     st.write(f"**Title: {result['title']}**")
                     st.write(f"**Authors:** {result['authors'][0]}")
                     st.write(f"**Year:** {result['year']}")               
                     st.write(f"**Abstract:** {result['summary']}")
                     st.write(f"**Link: {result['url']}**")
-                    st.write('---')
+                    if i != l - 1:
+                        st.write('---')
     
         else:
             st.warning("No results found. Please try a different query.")
-
-    # Footer avec mention de l'API
-    st.markdown("Powered by [arXiv API](https://arxiv.org/help/api) and [ChromaDB](https://www.trychroma.com/)")
 
 # Onglet 2 - Chat
 with tab2:
@@ -127,7 +127,7 @@ with tab2:
     """, unsafe_allow_html=True)
 
     # Zone de saisie
-    prompt = st.chat_input("Ask a question...", key="chat_input")
+    prompt = st.chat_input("Ask a question", key="chat_input")
     if prompt:
         st.session_state.messages = [{
             "role": "assistant",
@@ -148,3 +148,38 @@ with tab2:
             with st.chat_message("assistant"):
                 st.markdown(response["output"])
 
+
+# Onglet 3 - Trend Analysis
+with tab3:
+    st.header("📈 Trend Analysis")
+    
+    # Création d'une colonne centrale
+    col_center = st.columns([1, 2, 1])[1]  # [1, 2, 1] crée 3 colonnes, la colonne du milieu est 2 fois plus large
+    
+    with col_center:
+        # Champ de recherche pour le topic
+        topic = st.text_input("Enter a topic to analyze trends")
+        
+        # Sélecteurs de dates
+        col1, col2 = st.columns(2)
+        with col1:
+            start_year = st.slider("Start Year", 2009, 2023, 2009)
+        with col2:
+            end_year = st.slider("End Year", 2009, 2023, 2023)
+        
+        # Vérification que end_year >= start_year
+        if end_year < start_year:
+            st.error("End year must be greater than or equal to start year")
+        else:
+            if topic:
+                with st.spinner("Analyzing trends..."):
+                    fig = trend_analysis(vectorstore, topic, start_year, end_year)
+                    st.pyplot(fig)
+
+
+# --- Footer affiché partout ---
+st.markdown("""---""")
+st.markdown(
+    "🔗 Powered by [arXiv API](https://arxiv.org/help/api) and [ChromaDB](https://www.trychroma.com/)",
+    unsafe_allow_html=True
+)
