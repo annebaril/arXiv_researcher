@@ -1,0 +1,7 @@
+project_id="<GCP-PROJECT-ID>"
+region="<REGION>"
+zone="<ZONE>"
+region_dataproc="<REGION-DATAPROC>"
+zone_dataproc="<ZONE-DATAPROC>"
+dataproc_master_disk_size_gb=<NBR_GB>
+dataproc_worker_disk_size_gb=<NBR_GB>
