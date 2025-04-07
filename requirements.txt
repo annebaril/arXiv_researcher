@@ -8,3 +8,4 @@ tiktoken
 sentence-transformers
 pyspark
 pandas
+loguru

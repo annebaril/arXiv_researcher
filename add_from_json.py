@@ -91,11 +91,11 @@ def main():
     JSON_NAME = 'arxiv-metadata-oai-snapshot.json'
     MODEL_NAME = 'sentence-transformers/all-mpnet-base-v2'
     persist_directory = '/index_data'
-    chroma_ip = '34.163.92.97'
+    chroma_ip = '34.163.106.5'
     chroma_port = 8000
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(current_dir, "data", JSON_NAME)
+    current_dir = "gs://arxiv-researcher-data-source"
+    json_path = os.path.join(current_dir, JSON_NAME)
     line_per_part = 5000
 
     # Embed the documents
@@ -111,12 +111,6 @@ def main():
         )
 
     vectorstore = Chroma(persist_directory=persist_directory, client=chroma_client, embedding_function=embeddings)
-
-    # Ensure the json file exists
-    if not os.path.exists(json_path):
-        raise FileNotFoundError(
-            f"File {json_path} does not exist."
-        )
 
     spark = SparkSession.builder \
         .appName("Load JSON") \
@@ -147,6 +141,7 @@ def main():
         for i in range(0, number_part):
             logger.info(f"Part n°{i}")
             vectorstore = convert_part(df_cleaned, i, line_per_part, vectorstore)
+    logger.info(f"End")
 
 if __name__ == "__main__":
     main()

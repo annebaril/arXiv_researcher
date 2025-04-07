@@ -43,6 +43,7 @@ resource "google_compute_instance" "chroma_instance" {
   systemctl start docker
 
   mkdir -p /home/$USER/config
+  mkdir -p /index_data
   curl -o /home/$USER/docker-compose.yml https://s3.amazonaws.com/public.trychroma.com/cloudformation/assets/docker-compose.yml
   sed -i "s/CHROMA_VERSION/${var.chroma_version}/g" /home/$USER/docker-compose.yml
 
@@ -50,6 +51,7 @@ resource "google_compute_instance" "chroma_instance" {
   echo "CHROMA_OPEN_TELEMETRY__ENDPOINT=${var.chroma_otel_collection_endpoint}" >> /home/$USER/.env
   echo "CHROMA_OPEN_TELEMETRY__SERVICE_NAME=${var.chroma_otel_service_name}" >> /home/$USER/.env
   echo "OTEL_EXPORTER_OTLP_HEADERS=${var.chroma_otel_collection_headers}" >> /home/$USER/.env
+  echo "PERSIST_DIRECTORY=/index_data" >> /home/$USER/.env
 
   chown $USER:$USER /home/$USER/.env /home/$USER/docker-compose.yml
   cd /home/$USER
@@ -63,6 +65,56 @@ EOT
   # Service account with necessary scopes
   service_account {
     scopes = ["cloud-platform"]
+  }
+}
+
+resource "google_dataproc_cluster" "mycluster" {
+  name     = "cluster-start"
+  region   = "europe-north2"
+  graceful_decommission_timeout = "86400s"
+  labels = {
+    foo = "bar"
+  }
+
+  cluster_config {
+    gce_cluster_config {
+      zone = "europe-north2-c"
+    }
+    master_config {
+      num_instances = 1
+      machine_type  = "n4-standard-2"
+      disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
+        boot_disk_size_gb = 100
+      }
+    }
+
+    worker_config {
+      num_instances    = 3
+      machine_type     = "n4-standard-2"
+      disk_config {
+        boot_disk_type    = "hyperdisk-balanced"
+        boot_disk_size_gb = 50
+      }
+    }
+
+    preemptible_worker_config {
+      num_instances = 0
+    }
+
+    # Override or set some custom properties
+    software_config {
+      image_version = "2.2-debian12"
+      override_properties = {
+        "dataproc:dataproc.allow.zero.workers" = "true"
+      }
+    }
+
+    # You can define multiple initialization_action blocks
+    initialization_action {
+      script      = "gs://bucket-terraform-arxiv-researcher/install-python-deps.sh"
+      timeout_sec = 500
+    }
   }
 }
 
