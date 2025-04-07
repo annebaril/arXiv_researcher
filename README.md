@@ -1,58 +1,82 @@
-# arXiv Researcher - Application Streamlit
+# arXiv Researcher
 
-Cette application Streamlit permet de rechercher et d'interagir avec une base de données d'articles arXiv.
+An intelligent literature search system that helps researchers find and analyze academic papers from [arXiv](https://arxiv.org/).
 
-## Fonctionnalités
+## Features
 
-1. 🔍 **Recherche d'articles**
-   - Recherche sémantique dans la base d'articles
-   - Affichage des résultats pertinents
-   - Possibilité de sauvegarder les articles intéressants
-
-2. 💬 **Chatbot**
-   - Posez des questions sur les articles
-   - Obtenez des réponses contextuelles
-   - Historique des conversations
-
-3. 📊 **Comparaison d'articles**
-   - Comparez deux articles
-   - Analyse des similarités et différences
-   - Visualisation des résultats
+- 🔍 **Article Search**: Direct search in the arXiv API with formatted results
+- 💬 **Chat Interface**: Interactive chat with an AI assistant that can help find and understand research papers
+- 📈 **Trend Analysis**: Visualize research trends over time for specific topics
 
 ## Installation
 
-1. Créez un environnement virtuel :
+
+### Option 1: Using Poetry (Local Installation)
+
+1. Clone the repository:
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-venv\Scripts\activate  # Windows
+git clone https://github.com/yourusername/arXiv_researcher.git
+cd arXiv_researcher
 ```
 
-2. Installez les dépendances :
+2. Install dependencies using Poetry:
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
-3. Configurez les variables d'environnement :
-```bash
-export HUGGINGFACEHUB_API_TOKEN="votre_token"
-export GOOGLE_APPLICATION_CREDENTIALS="chemin/vers/credentials.json"
+3. Set up environment variables:
+Create a `.env` file with the following variables:
+```
+CHROMADB_HOST=your_chromadb_host
+AGENT_PROMPT=hwchase17/structured-chat-agent
+EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
+LLM_MODEL=gemini-2.0-flash-lite
+MODEL_PROVIDER=google_vertexai
+VERBOSE=True
 ```
 
-## Utilisation
+### Option 2: Using Docker
 
-1. Lancez l'application :
+1. Pull the Docker image:
 ```bash
-streamlit run app.py
+docker pull ????????????/arxiv_researcher:latest
 ```
 
-2. Ouvrez votre navigateur à l'adresse : http://localhost:8501
+2. Run the container:
+```bash
+docker run -p 8501:8501 
+```
 
-## Structure des données
+The application will be available at `http://localhost:8501`
 
-L'application utilise une base de données vectorielle Chroma pour stocker et rechercher les articles. Les données sont stockées dans Google Cloud Storage et sont synchronisées localement lors du lancement de l'application.
+## Usage
 
-## Contribution
+1. Start the Streamlit application:
+```bash
+poetry run streamlit run streamlit_app.py
+```
 
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request. 
+2. Use the application through your web browser:
+- Use the search tab to directly search arXiv
+- Chat with the AI assistant to get help finding and understanding papers
+- Analyze research trends for specific topics
+
+## Technologies Used
+
+- Streamlit for the web interface
+- LangChain for AI agent functionality
+- ChromaDB for vector storage
+- arXiv API for paper search
+- HuggingFace for embeddings
+- Matplotlib for trend visualization
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+## Dataset
+The dataset used to feed the LLM agent: https://www.kaggle.com/code/arthurchariyasathian/week7-projectexam-rag-option-1/notebook
+
+
+
