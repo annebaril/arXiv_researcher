@@ -11,6 +11,10 @@ variable "zone" {
   description = "GCP Zone"
 }
 
+variable "region_cloud_run" {
+  description = "GCP Cloud Run Region"
+}
+
 variable "region_dataproc" {
   description = "GCP Region for cluster dataproc"
 }

@@ -118,6 +118,37 @@ resource "google_dataproc_cluster" "mycluster" {
 	}
 }
 
+resource "google_cloud_run_service" "default" {
+  name     = "cloudrun-service"
+  location = var.region_cloud_run
+
+  template {
+	spec {
+		containers {
+			image = "europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest"
+			resources {
+			  limits = {
+				"cpu" = "4"
+				"memory" = "10Gi"
+			  }
+			}
+		}
+	}
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "pub1-access" {
+	service = google_cloud_run_service.default.name
+	location = google_cloud_run_service.default.location
+	policy_data = data.google_iam_policy.pub-1.policy_data
+}
+
+data "google_iam_policy" "pub-1" {
+	binding {
+	  role = "roles/run.invoker"
+	  members =  ["allUsers"]
+	}
+}
 # Output
 output "chroma_instance_ip" {
     description = "Public IP address of the Chroma server"
