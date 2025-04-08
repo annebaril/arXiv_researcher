@@ -8,10 +8,10 @@ An intelligent literature search system that helps researchers find and analyze 
 - 💬 **Chat Interface**: Interactive chat with an AI assistant that can help find and understand research papers
 - 📈 **Trend Analysis**: Visualize research trends over time for specific topics
 
-## Installation
+## Local Installation 
 
 
-### Option 1: Using Poetry (Local Installation)
+### Option 1: Using Poetry
 
 1. Clone the repository:
 ```bash
@@ -24,15 +24,37 @@ cd arXiv_researcher
 poetry install
 ```
 
-3. Set up environment variables:
-Create a `.env` file with the following variables:
+3. Create a copy of the set up example:
+```bash
+cp .env.copy .env
 ```
-CHROMADB_HOST=your_chromadb_host
+
+4. Set up environment variables:
+Edit the `.env` file with yours configurations. Set the variable ENV=DEV. Here a example for somes variables:
+```
 AGENT_PROMPT=hwchase17/structured-chat-agent
 EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
 LLM_MODEL=gemini-2.0-flash-lite
 MODEL_PROVIDER=google_vertexai
 VERBOSE=True
+```
+
+5. Get environment variables:
+```bash
+source .env
+```
+
+6. Get dataset arXiv:
+You can get the latest dataset here: `https://www.kaggle.com/datasets/Cornell-University/arxiv`
+Or you can copy the dataset wtih:
+```bash
+mkdir ${PATH_DATA_START_JSON}
+gsutil cp -r gs://arxiv-researcher-data-source/arxiv-metadata-oai-snapshot.json ${PATH_DATA_START_JSON}
+```
+
+7. Initiate Data:
+```bash
+python add_from_json.py 0 20
 ```
 
 ### Option 2: Using Docker
@@ -44,11 +66,11 @@ docker pull europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-ap
 
 2. Run the container:
 ```bash
-docker run -p 8501:8501 
+docker run -p 8501:8501 -e ENV=ENV PERSIST_DIRECTORY=PERSIST_DIRECTORY
 ```
 The application will be available at `http://localhost:8501`
 
-## Installation Terraform
+## GCP Installation (Terraform)
 1. Créer une copie du fichier de variable terraform :
 ```bash
 cd iac
@@ -76,26 +98,17 @@ terraform apply -var-file chroma.tfvars
 terraform output -raw chroma_instance_ip
 ```
 
-6. Remplacer l'ip du chroma avec celui récupérer
-
-7. Modifier les variables dans le fichier `iac/script/add_from_json.py`
-
-8. Lancer la commande : 
-```bash
-gcloud dataproc jobs submit pyspark script/add_from_json.py \
-    --cluster=<NOM_CLUSTER> \
-    --region=<REGION_CLUSTER>
-```
-Vous avez à la fin une VM avec un chroma d'installer et un cluster dataproc
+Vous avez à la fin une VM avec un chroma d'installer dans une VM, un cluster dataproc avec un job dataproc qui est en train de remplir votre chromadb
 
 ## Usage
 
-1. Start the Streamlit application:
+1. (Local Installation) Start the Streamlit application:
 ```bash
 poetry run streamlit run streamlit_app.py
 ```
+2. (GCP Installation) On your GCP console, check the cloud run and go to the url
 
-2. Use the application through your web browser:
+3. Use the application through your web browser:
 - Use the search tab to directly search arXiv
 - Chat with the AI assistant to get help finding and understanding papers
 - Analyze research trends for specific topics

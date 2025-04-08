@@ -116,7 +116,7 @@ def main():
             )
     else:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        dir = os.getenv("PATH_DATA_START_JSON", "data", "chromadb")
+        dir = os.getenv("PATH_DATA_START_JSON", "data/chromadb")
         current_dir = os.path.join(current_dir, dir)
         chroma_client = None
 
@@ -138,18 +138,23 @@ def main():
         logger.info(f"Argument provided, using value: {sys.argv[1]}")
         number_part = sys.argv[1]
         convert_part(df_cleaned, int(number_part), line_per_part, vectorstore)
-    elif len(sys.argv) > 2:
+    elif len(sys.argv) > 3:
         raise(TypeError)
     else:
-        logger.info(f"No argument provided, use all the data")
-        
-        nbr_line_dataframe = df_cleaned.count()
-        number_part = nbr_line_dataframe // line_per_part
-        if nbr_line_dataframe % line_per_part != 0:
-            number_part += 1
-        logger.info(f"{number_part} parts identify")
+        if len(sys.argv) == 3:
+            logger.info(f"Argument provided, using value: {sys.argv[1]} and {sys.argv[2]}")
+            start_part = int(sys.argv[1])
+            last_part = int(sys.argv[2])
+        else:
+            logger.info(f"No argument provided, use all the data")
+            start_part = 0
+            nbr_line_dataframe = df_cleaned.count()
+            last_part = nbr_line_dataframe // line_per_part
+            if nbr_line_dataframe % line_per_part != 0:
+                last_part += 1
+            logger.info(f"{last_part} parts identify")
 
-        for i in range(0, number_part):
+        for i in range(start_part, last_part):
             logger.info(f"Part n°{i}")
             vectorstore = convert_part(df_cleaned, i, line_per_part, vectorstore)
     logger.info(f"End")
