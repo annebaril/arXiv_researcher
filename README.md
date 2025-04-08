@@ -39,7 +39,7 @@ VERBOSE=True
 
 1. Pull the Docker image:
 ```bash
-docker pull ????????????/arxiv_researcher:latest
+docker pull europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest 
 ```
 
 2. Run the container:
