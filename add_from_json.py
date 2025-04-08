@@ -116,7 +116,7 @@ def main():
             )
     else:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        dir = os.getenv("PATH_DATA_START_JSON", "../../data")
+        dir = os.getenv("PATH_DATA_START_JSON", "data", "chromadb")
         current_dir = os.path.join(current_dir, dir)
         chroma_client = None
 
