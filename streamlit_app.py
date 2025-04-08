@@ -40,7 +40,6 @@ st.title("📚 arXiv Searcher")
 def initialize_components(): 
     # Initialisation des embeddings
     chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
-    print(chroma_client.heartbeat())
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
 
