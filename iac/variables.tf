@@ -97,3 +97,23 @@ variable "chroma_otel_granularity" {
   description = "Chroma OTEL granularity"
   default     = ""
 }
+
+variable "chromadb_port" {
+  description = "Chroma open port"
+  default = 8000
+}
+
+variable "env" {
+  description = "type of env. Prod for full gcp, other for local"
+  default = "PROD"
+}
+
+variable "json_name_data_start" {
+  description = "name of the dataset"
+  default = "arxiv-metadata-oai-snapshot.json"
+}
+
+variable "gcp_data_start" {
+  description = "url gs of the dataset"
+  default = "gs://arxiv-researcher-data-source"
+}

@@ -11,6 +11,10 @@ resource "google_compute_firewall" "default" {
     source_ranges = ["0.0.0.0/0"]
 }
 
+# resource "google_compute_address" "static-ip-address" {
+#   name = "chroma-static-ip-address"
+# }
+
 # Compute Engine Instance
 resource "google_compute_instance" "chroma_instance" {
     name         = var.instance_name
@@ -26,7 +30,9 @@ resource "google_compute_instance" "chroma_instance" {
 
   	network_interface {
     	network = "default"
-    	access_config {}
+    	access_config {
+			# nat_ip = "${google_compute_address.static-ip-address.address}"
+		}
   	}
 
 	metadata_startup_script = <<-EOT
@@ -107,6 +113,12 @@ resource "google_dataproc_cluster" "mycluster" {
       		image_version = "2.2-debian12"
       		override_properties = {
         		"dataproc:dataproc.allow.zero.workers" = "true"
+				"spark-env:CHROMADB_HOST" = google_compute_instance.chroma_instance.network_interface[0].access_config[0].nat_ip
+				"spark-env:DATA_START_JSON_NAME" = var.json_name_data_start
+				"spark-env:DATA_START_JSON_GCP" = var.gcp_data_start
+				"spark-env:CHROMADB_PORT" = var.chromadb_port
+				"spark-env:ENV" = var.env
+				"spark-env:EMBEDDING_MODEL" = "sentence-transformers/all-mpnet-base-v2"
       		}
 		}
 
@@ -118,6 +130,22 @@ resource "google_dataproc_cluster" "mycluster" {
 	}
 }
 
+# Submit an example pyspark job to a dataproc cluster
+resource "google_dataproc_job" "pyspark" {
+  region       = google_dataproc_cluster.mycluster.region
+  force_delete = true
+  placement {
+    cluster_name = google_dataproc_cluster.mycluster.name
+  }
+
+  pyspark_config {
+    main_python_file_uri = "gs://bucket-terraform-arxiv-researcher/add_from_json.py"
+    properties = {
+      "spark.logConf" = "true"
+    }
+  }
+}
+
 resource "google_cloud_run_service" "default" {
   name     = "cloudrun-service"
   location = var.region_cloud_run
@@ -126,6 +154,18 @@ resource "google_cloud_run_service" "default" {
 	spec {
 		containers {
 			image = "europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest"
+			env {
+				name = "CHROMADB_HOST"
+				value = google_compute_instance.chroma_instance.network_interface[0].access_config[0].nat_ip
+			}
+			env {
+				name = "ENV"
+				value = var.env
+			}
+			env {
+				name = "CHROMADB_PORT"
+				value = var.chromadb_port
+			}
 			resources {
 			  limits = {
 				"cpu" = "4"
