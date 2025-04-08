@@ -91,29 +91,37 @@ def convert_part(df, part, number_line, vectorstore):
 
 
 def main():
-    JSON_NAME = 'arxiv-metadata-oai-snapshot.json'
-    MODEL_NAME = 'sentence-transformers/all-mpnet-base-v2'
-    persist_directory = '/index_data'
-    chroma_ip = '34.163.106.5'
-    chroma_port = 8000
-
-    current_dir = "gs://arxiv-researcher-data-source"
-    json_path = os.path.join(current_dir, JSON_NAME)
+    status_env = os.getenv("ENV", "PROD")
+    JSON_NAME = os.getenv("DATA_START_JSON_NAME")
+    CHROMADB_HOST = os.getenv("CHROMADB_HOST")
+    CHROMADB_PORT = os.getenv("CHROMADB_PORT", 8000)
+    MODEL_NAME = os.getenv("EMBEDDING_MODEL")
+    PERSIST_DIRECTORY = os.getenv("PERSIST_DIRECTORY", "/index_data")
     line_per_part = 500
 
     # Embed the documents
     embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME)
-    chroma_client = chromadb.HttpClient(host=chroma_ip, port=chroma_port)
-    
-    try:
-        heartbeat = chroma_client.heartbeat()
-        logger.info(f"heartbeat du client est de: {heartbeat}")
-    except:
-        raise FileNotFoundError(
-            f"Le serveur est down."
-        )
 
-    vectorstore = Chroma(persist_directory=persist_directory, client=chroma_client, embedding_function=embeddings)
+    #If env PROD, the json file is in GSP BUCKET. Else, is in local
+    if status_env == "PROD":
+        current_dir = os.getenv("DATA_START_JSON_GCP")
+        chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
+        
+        try:
+            heartbeat = chroma_client.heartbeat()
+            logger.info(f"heartbeat du client est de: {heartbeat}")
+        except:
+            raise FileNotFoundError(
+                f"Le serveur est down."
+            )
+    else:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        dir = os.getenv("PATH_DATA_START_JSON", "../../data")
+        current_dir = os.path.join(current_dir, dir)
+        chroma_client = None
+
+    json_path = os.path.join(current_dir, JSON_NAME)
+    vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, client=chroma_client, embedding_function=embeddings)
 
     spark = SparkSession.builder \
         .appName("Load JSON") \
