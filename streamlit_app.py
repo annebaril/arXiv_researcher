@@ -25,6 +25,8 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 LLM_MODEL = os.getenv("LLM_MODEL")
 MODEL_PROVIDER = os.getenv("MODEL_PROVIDER")
 AGENT_PROMPT = os.getenv("AGENT_PROMPT")
+ENV_DB = os.getenv("ENV_DB", "GCP")
+PERSIST_DIRECTORY = os.getenv("PERSIST_DIRECTORY", "/index_data")
 
 # Initialisation de l'application Streamlit 
 st.set_page_config(
@@ -39,9 +41,13 @@ st.title("📚 arXiv Searcher")
 @st.cache_resource  # introduit dans la version 1.18.0 de Streamlit
 def initialize_components(): 
     # Initialisation des embeddings
-    chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
-    vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
+    if ENV_DB == 'GCP':
+        chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
+    else:
+        chroma_client = None
+
+    vectorstore = Chroma(embedding_function=embeddings, client=chroma_client, persist_directory=PERSIST_DIRECTORY)
 
     # Initialisation du LLM
     llm = init_chat_model(model=LLM_MODEL, model_provider=MODEL_PROVIDER)
