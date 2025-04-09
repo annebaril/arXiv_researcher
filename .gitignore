@@ -13,6 +13,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 requirements.txt
+!bucket/requirements.txt
 .python-version
 # C extensions
 *.so
