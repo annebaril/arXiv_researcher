@@ -5,6 +5,8 @@ stream3.py
 .python-version
 *.ipynb
 streamlit_app/
+iac/.terraform.lock.hcl
+iac_simple/.terraform.lock.hcl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
