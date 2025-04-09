@@ -91,7 +91,7 @@ def convert_part(df, part, number_line, vectorstore):
 
 
 def main():
-    status_env = os.getenv("ENV", "PROD")
+    ENV_DB = os.getenv("ENV_DB", "GCP")
     JSON_NAME = os.getenv("DATA_START_JSON_NAME")
     CHROMADB_HOST = os.getenv("CHROMADB_HOST")
     CHROMADB_PORT = os.getenv("CHROMADB_PORT", 8000)
@@ -102,8 +102,8 @@ def main():
     # Embed the documents
     embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME)
 
-    #If env PROD, the json file is in GSP BUCKET. Else, is in local
-    if status_env == "PROD":
+    #If ENV_DB == GCP, the json file is in GSP BUCKET. Else, is in local
+    if ENV_DB == "GCP":
         current_dir = os.getenv("DATA_START_JSON_GCP")
         chroma_client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
         

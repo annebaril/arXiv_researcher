@@ -117,7 +117,7 @@ resource "google_dataproc_cluster" "mycluster" {
 				"spark-env:DATA_START_JSON_NAME" = var.json_name_data_start
 				"spark-env:DATA_START_JSON_GCP" = var.gcp_data_start
 				"spark-env:CHROMADB_PORT" = var.chromadb_port
-				"spark-env:ENV" = var.env
+				"spark-env:ENV_DB" = var.env_db
 				"spark-env:EMBEDDING_MODEL" = "sentence-transformers/all-mpnet-base-v2"
       		}
 		}
@@ -159,8 +159,8 @@ resource "google_cloud_run_service" "default" {
 				value = google_compute_instance.chroma_instance.network_interface[0].access_config[0].nat_ip
 			}
 			env {
-				name = "ENV"
-				value = var.env
+				name = "ENV_DB"
+				value = var.env_db
 			}
 			env {
 				name = "CHROMADB_PORT"

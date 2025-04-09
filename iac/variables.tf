@@ -103,9 +103,9 @@ variable "chromadb_port" {
   default = 8000
 }
 
-variable "env" {
-  description = "type of env. Prod for full gcp, other for local"
-  default = "PROD"
+variable "env_db" {
+  description = "type of env db. GCP for full gcp, other for local"
+  default = "GCP"
 }
 
 variable "json_name_data_start" {
