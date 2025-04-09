@@ -15,7 +15,7 @@ An intelligent literature search system that helps researchers find and analyze 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/arXiv_researcher.git
+git clone https://github.com/annebaril/arXiv_researcher.git
 cd arXiv_researcher
 ```
 
@@ -24,19 +24,21 @@ cd arXiv_researcher
 poetry install
 ```
 
-3. Create a copy of the set up example:
+3. Create a copy of the environment variables example:
 ```bash
 cp .env.copy .env
 ```
 
 4. Set up environment variables:
-Edit the `.env` file with yours configurations. Set the variable ENV=DEV. Here a example for somes variables:
+Edit the `.env` file with yours configurations. Set the variable ENV=LOCAL and comment variables of the prod part. Here a example for somes variables:
 ```
 AGENT_PROMPT=hwchase17/structured-chat-agent
 EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
 LLM_MODEL=gemini-2.0-flash-lite
 MODEL_PROVIDER=google_vertexai
 VERBOSE=True
+#CHROMADB_PORT=<PORT_CHROMA_DB>
+#CHROMADB_HOST=<IP_CHROMA_DB>
 ```
 
 5. Get environment variables:
@@ -57,48 +59,80 @@ gsutil cp -r gs://arxiv-researcher-data-source/arxiv-metadata-oai-snapshot.json 
 python add_from_json.py 0 20
 ```
 
-### Option 2: Using Docker
+### Option 2: Using Docker and GCP VM
 
-1. Pull the Docker image:
-```bash
-docker pull europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest 
-```
+1. Get the directory iac_simple of the git `https://github.com/annebaril/arXiv_researcher.git`
 
-2. Run the container:
+2. Go to the new directory and create a copy of the environment variables example:
 ```bash
-docker run -p 8501:8501 -e ENV=ENV PERSIST_DIRECTORY=PERSIST_DIRECTORY
-```
-The application will be available at `http://localhost:8501`
-
-## GCP Installation (Terraform)
-1. Créer une copie du fichier de variable terraform :
-```bash
-cd iac
+cd iac_simple
 cp chroma.tfvars.example chroma.tfvars
 ```
 
-2. Modifier le fichier pour remplacer les données :
+3. Set up environment variables :
+Edit the `chroma.tfvars` file with yours configurations. You can uncomment, delete `default <default_value>` and set you new value if you don't want the default value.
 ```bash
 nano chroma.tfvars
 ```
 
-3. Initialiser le terraform :
+4. Init Terraform :
 ```bash
 terraform init
 ```
 
-4. Planifier pour vérifier les informations puis Déployer :
+5. Check informations and deploy :
 ```bash
 terraform plan -var-file chroma.tfvars
 terraform apply -var-file chroma.tfvars
 ```
 
-5. Récupérer l'ip du chroma fraichement créer :
+6. Get ip of chroma :
 ```bash
 terraform output -raw chroma_instance_ip
 ```
 
-Vous avez à la fin une VM avec un chroma d'installer dans une VM, un cluster dataproc avec un job dataproc qui est en train de remplir votre chromadb
+9. Pull the Docker image:
+```bash
+docker pull europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest 
+```
+
+10. Run the container (replace `<IP_CHROMA_DB>` with the get value of the 6th step) :
+```bash
+docker run -p 8501:8501 -e ENV="GCP" -e PORT=8501 -e CHROMADB_HOST=<IP_CHROMA_DB> europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest
+```
+
+The application will be available at `http://localhost:8501`
+
+## GCP Installation (Terraform)
+
+1. Create a copy of the environment variables example :
+```bash
+cd iac
+cp chroma.tfvars.example chroma.tfvars
+```
+
+2. Set up environment variables :
+```bash
+nano chroma.tfvars
+```
+
+3. Init Terraform :
+```bash
+terraform init
+```
+
+4. Check informations and deploy :
+```bash
+terraform plan -var-file chroma.tfvars
+terraform apply -var-file chroma.tfvars
+```
+
+5. Get ip of chroma :
+```bash
+terraform output -raw chroma_instance_ip
+```
+
+You have a VM with chroma on docker, a cluster dataproc with a job dataprocwhich is filling your chromadb
 
 ## Usage
 
@@ -106,9 +140,12 @@ Vous avez à la fin une VM avec un chroma d'installer dans une VM, un cluster da
 ```bash
 poetry run streamlit run streamlit_app.py
 ```
-2. (GCP Installation) On your GCP console, check the cloud run and go to the url
 
-3. Use the application through your web browser:
+2. (Docker and GCP VM) The application will be available at `http://localhost:8501`
+
+3. (GCP Installation) On your GCP console, check the cloud run and go to the url
+
+4. Use the application through your web browser:
 - Use the search tab to directly search arXiv
 - Chat with the AI assistant to get help finding and understanding papers
 - Analyze research trends for specific topics
