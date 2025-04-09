@@ -1,0 +1,32 @@
+project_id="<GCP-PROJECT-ID>"
+region="<REGION>"
+zone="<ZONE>"
+region_cloud_run=<REGION_CLOUD_RUN>
+region_dataproc="<REGION-DATAPROC>"
+zone_dataproc="<ZONE-DATAPROC>"
+#not required
+# default 100 dataproc_master_disk_size_gb=<NBR_GB>
+# default 50 dataproc_worker_disk_size_gb=<NBR_GB>
+# default "chroma-instance" instance_name="<NAME_VM>"
+# default "cluster-3f4e" dataproc_name="<NAME_DATAPROC>"
+# default "e2-small" machine_type="<TYPE_VM>"
+# default "n4-standard-2" dataproc_machine_type="<TYPE_MACHINE_MASTER_WORKER>"
+# default "hyperdisk-balanced" dataproc_disk_type="<DATAPROC_DISK_TYPE>"
+# default 100 dataproc_master_disk_size_gb=<DATAPROC_MASTER_DISK_SIZE>
+# default 50 dataproc_worker_disk_size_gb=<DATAPROC_WORKER_DISK_SIZE>
+# default "0.6.3" chroma_version="<CHROMA_VERSION>"
+# default "" chroma_server_auth_credentials="<CHROMA_AUTH_CREDENTIALS>"
+# default "" chroma_server_auth_provider="<CHROMA_SERVER_AUTH_PROVIDER>"
+# default "" chroma_auth_token_transport_header="<CHROMA_AUTH_TOKEN_TRANSPORT_HEADER>"
+# default "" chroma_otel_collection_endpoint="<CHROMA_OTEL_COLLECTION_ENDPOIT>"
+# default "" chroma_otel_service_name="<CHROMA_OTEL_SERVICE_NAME>"
+# default "{}" chroma_otel_collection_headers="<CHROMA_OTEL_COLLECTION_HEADERS>"
+# default "" chroma_otel_granularity="<CHROMA_OTEL_GRANULARITY>"
+# default 8000 chromadb_port=<CHROMADB_PORT>
+# default "GCP" env_db="<ENV_GCP_OR_LOCAL>"
+# default "arxiv-metadata-oai-snapshot.json" json_name_data_start="<NAME_JSON_FILE_DATASET>"
+
+# default "gs://arxiv-researcher-data-source" gcp_data_start="<URL_GCP_DATASET>"
+# default "gs://bucket-terraform-arxiv-researcher/install-python-deps.sh" gcp_script_init_cluster_dataproc="<URL_GCP_SCRIPT_INIT>"
+# default "gs://bucket-terraform-arxiv-researcher/add_from_json.py" gcp_script_job_dataproc="<URL_GCP_SCRIPT_JOB_DATAPROC>"
+# default "europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest" cloud_run_image_docker="<URL_ARTIFACT_REGISTRY>"

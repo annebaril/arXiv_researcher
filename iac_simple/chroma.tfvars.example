@@ -1,0 +1,13 @@
+project_id="<GCP-PROJECT-ID>"
+region="<REGION>"
+zone="<ZONE>"
+#not required
+# default "chroma-instance" instance_name="<NAME_VM>"
+# default "0.6.3" chroma_version="<CHROMA_VERSION>"
+# default "" chroma_server_auth_credentials="<CHROMA_AUTH_CREDENTIALS>"
+# default "" chroma_server_auth_provider="<CHROMA_SERVER_AUTH_PROVIDER>"
+# default "" chroma_auth_token_transport_header="<CHROMA_AUTH_TOKEN_TRANSPORT_HEADER>"
+# default "" chroma_otel_collection_endpoint="<CHROMA_OTEL_COLLECTION_ENDPOIT>"
+# default "" chroma_otel_service_name="<CHROMA_OTEL_SERVICE_NAME>"
+# default "{}" chroma_otel_collection_headers="<CHROMA_OTEL_COLLECTION_HEADERS>"
+# default "" chroma_otel_granularity="<CHROMA_OTEL_GRANULARITY>"
