@@ -6,16 +6,16 @@ An intelligent literature search system that helps researchers find and analyze 
 
 - 🔍 **Article Search**: Direct search in the arXiv API with formatted results
 - 💬 **Chat Interface**: Interactive chat with an AI assistant that can help find and understand research papers
-- 📈 **Trend Analysis**: Visualize research trends over time for specific topics
+- 📈 **Trend Analysis**: Visualize research trends over time for specific topics based on the documents in our vectorstore
 
-## Installation
+## Local Installation 
 
 
-### Option 1: Using Poetry (Local Installation)
+### Option 1: Using Poetry
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/arXiv_researcher.git
+git clone https://github.com/annebaril/arXiv_researcher.git
 cd arXiv_researcher
 ```
 
@@ -24,41 +24,133 @@ cd arXiv_researcher
 poetry install
 ```
 
-3. Set up environment variables:
-Create a `.env` file with the following variables:
+3. Create a copy of the environment variables example:
+```bash
+cp .env.copy .env
 ```
-CHROMADB_HOST=your_chromadb_host
+
+4. Set up environment variables:
+Edit the `.env` file with your configurations. Set the variable ENV=LOCAL and comment variables of the prod environment. Here is an example for some variables:
+```
 AGENT_PROMPT=hwchase17/structured-chat-agent
 EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
 LLM_MODEL=gemini-2.0-flash-lite
 MODEL_PROVIDER=google_vertexai
 VERBOSE=True
+#CHROMADB_PORT=<PORT_CHROMA_DB>
+#CHROMADB_HOST=<IP_CHROMA_DB>
 ```
 
-### Option 2: Using Docker
+5. Set environment variables:
+```bash
+source .env
+```
 
-1. Pull the Docker image:
+6. Get dataset arXiv:
+
+You can get the latest dataset here: `https://www.kaggle.com/datasets/Cornell-University/arxiv`
+
+Or you can copy the dataset with:
+```bash
+mkdir ${PATH_DATA_START_JSON}
+gsutil cp -r gs://arxiv-researcher-data-source/arxiv-metadata-oai-snapshot.json ${PATH_DATA_START_JSON}
+```
+
+7. Initiate vectorstore creation:
+```bash
+python add_from_json.py 0 20
+```
+
+### Option 2: Using Docker and GCP VM
+
+1. Get the directory iac_simple from git `https://github.com/annebaril/arXiv_researcher.git`
+
+2. Go to the new directory and create a copy of the file with examples of environment variables:
+```bash
+cd iac_simple
+cp chroma.tfvars.example chroma.tfvars
+```
+
+3. Set up environment variables :
+
+Edit the `chroma.tfvars` file with your configurations. You can uncomment, delete `default <default_value>` and set you new value if you don't want the default value.
+```bash
+nano chroma.tfvars
+```
+
+4. Init Terraform :
+```bash
+terraform init
+```
+
+5. Check information and deploy :
+```bash
+terraform plan -var-file chroma.tfvars
+terraform apply -var-file chroma.tfvars
+```
+
+6. Get ip of chroma :
+```bash
+terraform output -raw chroma_instance_ip
+```
+
+7. Pull the Docker image:
 ```bash
 docker pull europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest 
 ```
 
-2. Run the container:
+8. Run the container (replace `<IP_CHROMA_DB>` with the get value of the 6th step) :
 ```bash
-docker run -p 8501:8501 
+docker run -p 8501:8501 -e ENV="GCP" -e PORT=8501 -e CHROMADB_HOST=<IP_CHROMA_DB> europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest
 ```
 
 The application will be available at `http://localhost:8501`
 
+## GCP Installation (Terraform)
+
+1. Create a copy of the environment variables example file:
+```bash
+cd iac
+cp chroma.tfvars.example chroma.tfvars
+```
+
+2. Set up environment variables :
+```bash
+nano chroma.tfvars
+```
+
+3. Init Terraform :
+```bash
+terraform init
+```
+
+4. Check informations and deploy :
+```bash
+terraform plan -var-file chroma.tfvars
+terraform apply -var-file chroma.tfvars
+```
+
+5. Get ip of chroma :
+```bash
+terraform output -raw chroma_instance_ip
+```
+
+You get a VM with chroma on Docker, a Dataproc cluster with a Dataproc job, which is filling the Chromadb.
+
 ## Usage
 
-1. Start the Streamlit application:
+1. (Local installation) Start the Streamlit application:
 ```bash
 poetry run streamlit run streamlit_app.py
 ```
 
-2. Use the application through your web browser:
+2. (Docker and GCP VM) The application will be available at `http://localhost:8501`
+
+3. (GCP Installation) On your GCP console, check the cloud run and go to the url
+
+4. Use the application in your web browser:
 - Use the search tab to directly search arXiv
-- Chat with the AI assistant to get help finding and understanding papers
+- Chat with the AI assistant to get help to find and understand papers
 - Analyze research trends for specific topics
 
 ## Technologies Used
