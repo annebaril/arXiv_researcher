@@ -101,7 +101,7 @@ with tab2:
         <style>
         .stChatInput {
             position: fixed;
-            bottom: 60px;
+            bottom: 30px;
             left: 0;
             right: 0;
             padding: 1rem;
@@ -119,7 +119,6 @@ with tab2:
             "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
         }]
     
-
     # Afficher l'historique
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
