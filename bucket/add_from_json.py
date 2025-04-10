@@ -155,7 +155,7 @@ def main():
             logger.info(f"{last_part} parts identify")
 
         for i in range(start_part, last_part):
-            logger.info(f"Part n°{i}")
+            logger.info(f"Part nÂ°{i}")
             vectorstore = convert_part(df_cleaned, i, line_per_part, vectorstore)
     logger.info(f"End")
 

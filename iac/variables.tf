@@ -117,3 +117,18 @@ variable "gcp_data_start" {
   description = "url gs of the dataset"
   default = "gs://arxiv-researcher-data-source"
 }
+
+variable "gcp_script_init_cluster_dataproc" {
+  description = "url gs of the script init of dataproc"
+  default = "gs://bucket-terraform-arxiv-researcher/install-python-deps.sh"
+}
+
+variable "gcp_script_job_dataproc" {
+  description = "url gs of the script job dataproc"
+  default = "gs://bucket-terraform-arxiv-researcher/add_from_json.py"
+}
+
+variable "cloud_run_image_docker" {
+  description = "name of the image docker in the Artifact Registry"
+  default = "europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest"
+}

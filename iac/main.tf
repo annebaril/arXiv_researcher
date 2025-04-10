@@ -124,7 +124,7 @@ resource "google_dataproc_cluster" "mycluster" {
 
 		# You can define multiple initialization_action blocks
 		initialization_action {
-			script      = "gs://bucket-terraform-arxiv-researcher/install-python-deps.sh"
+			script      = var.gcp_script_init_cluster_dataproc
 			timeout_sec = 500
 		}
 	}
@@ -139,7 +139,7 @@ resource "google_dataproc_job" "pyspark" {
   }
 
   pyspark_config {
-    main_python_file_uri = "gs://bucket-terraform-arxiv-researcher/add_from_json.py"
+    main_python_file_uri = var.gcp_script_job_dataproc
     properties = {
       "spark.logConf" = "true"
     }
@@ -153,7 +153,7 @@ resource "google_cloud_run_service" "default" {
   template {
 	spec {
 		containers {
-			image = "europe-west1-docker.pkg.dev/arxiv-researcher/arxiv-searcher/arxiv-app:latest"
+			image = var.cloud_run_image_docker
 			env {
 				name = "CHROMADB_HOST"
 				value = google_compute_instance.chroma_instance.network_interface[0].access_config[0].nat_ip

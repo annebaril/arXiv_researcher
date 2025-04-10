@@ -50,12 +50,6 @@ source .env
 
 You can get the latest dataset here: `https://www.kaggle.com/datasets/Cornell-University/arxiv`
 
-Or you can copy the dataset with:
-```bash
-mkdir ${PATH_DATA_START_JSON}
-gsutil cp -r gs://arxiv-researcher-data-source/arxiv-metadata-oai-snapshot.json ${PATH_DATA_START_JSON}
-```
-
 7. Initiate vectorstore creation:
 ```bash
 python add_from_json.py 0 20
@@ -107,6 +101,36 @@ docker run -p 8501:8501 -e ENV="GCP" -e PORT=8501 -e CHROMADB_HOST=<IP_CHROMA_DB
 The application will be available at `http://localhost:8501`
 
 ## GCP Installation (Terraform)
+
+### Initialization GCP
+
+It can be all the URL of GCP are obsolete because components are deleted. In that case, you need to create new for you.
+
+1. Change url of script bash
+In the folder `bucket`, change the line 7 with the url of your GCS bucket
+
+2. Add initialization files on bucket
+Put all files in the folder `bucket` on the same GCS bucket you have use on the previous step
+
+3. Dataset
+Go to the the url `https://www.kaggle.com/code/arthurchariyasathian/week7-projectexam-rag-option-1/notebook`, download the dataset and put it on a GCS bucket
+
+4. Docker
+You need to create a new docker image
+```bash
+<INSERT_COMMAND>
+```
+
+4. Docker on Artefact Registry
+Now, push it on your Artefact Registry
+```bash
+<INSERT_COMMAND>
+```
+
+5. Environment variables
+When you will set up your environment variables, don't forget to put urls you create on the good variables
+
+### Installation Project
 
 1. Create a copy of the environment variables example file:
 ```bash
