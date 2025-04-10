@@ -104,31 +104,34 @@ The application will be available at `http://localhost:8501`
 
 ### Initialization GCP
 
-It can be all the URL of GCP are obsolete because components are deleted. In that case, you need to create new for you.
+The URL of GCP could be obsolete if components have been deleted. In that case, you need to create new ones for your own usage.
 
 1. Change url of script bash
 In the folder `bucket`, change the line 7 with the url of your GCS bucket
 
 2. Add initialization files on bucket
-Put all files in the folder `bucket` on the same GCS bucket you have use on the previous step
+Put the files in the folder `bucket` on the same GCS bucket that you have used in the previous step
 
 3. Dataset
-Go to the the url `https://www.kaggle.com/code/arthurchariyasathian/week7-projectexam-rag-option-1/notebook`, download the dataset and put it on a GCS bucket
+Go to the the url `https://www.kaggle.com/code/arthurchariyasathian/week7-projectexam-rag-option-1/notebook`, download the dataset and put it in a GCS bucket
 
 4. Docker
-You need to create a new docker image
+
+You need to create a new docker image:
 ```bash
-<INSERT_COMMAND>
+docker build -t your_image_name .
 ```
 
 4. Docker on Artefact Registry
-Now, push it on your Artefact Registry
+
+Now, push it on your [Artefact Registry](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling?hl=fr)
 ```bash
 <INSERT_COMMAND>
 ```
 
 5. Environment variables
-When you will set up your environment variables, don't forget to put urls you create on the good variables
+
+When you set up your environment variables, don't forget to put URLs you have created on the good variables
 
 ### Installation Project
 

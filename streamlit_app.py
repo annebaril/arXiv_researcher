@@ -44,7 +44,7 @@ def initialize_components():
     vectorstore = Chroma(embedding_function=embeddings, client=chroma_client)
 
     # Initialisation du LLM
-    llm = init_chat_model(model=LLM_MODEL, model_provider=MODEL_PROVIDER)
+    llm = init_chat_model(model=LLM_MODEL, model_provider=MODEL_PROVIDER, temperature=0)
     
     # Initialisation de l'agent
     prompt = hub.pull(AGENT_PROMPT)
@@ -96,21 +96,12 @@ with tab1:
 
 # Onglet 2 - Chat
 with tab2:
-    st.header("Chat with arXiv Bot!")
-
-    # Initialisation du message d'accueil
-    if "messages" not in st.session_state:
-        st.session_state.messages = [{
-            "role": "assistant",
-            "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
-        }]
-
     # Sticky input style
     st.markdown("""
         <style>
         .stChatInput {
             position: fixed;
-            bottom: 60px;
+            bottom: 30px;
             left: 0;
             right: 0;
             padding: 1rem;
@@ -122,32 +113,32 @@ with tab2:
         </style>
     """, unsafe_allow_html=True)
 
-    # Zone de saisie
-    prompt = st.chat_input("Ask a question", key="chat_input")
-    if prompt:
+    if "messages" not in st.session_state:
         st.session_state.messages = [{
             "role": "assistant",
             "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
-        }]        
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        st.rerun()
+        }]
+    
+    # Afficher l'historique
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-    # Affichage des messages (y compris après rerun)
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    # Si le dernier message est de l'utilisateur, générer la réponse
-    if st.session_state.messages[-1]["role"] == "user":
+    # Ajouter nouvelle question
+    user_input = st.chat_input("Ask a question")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+        
         with st.spinner("The agent is thinking..."):
-            response = agent_executor.invoke({"input": st.session_state.messages[-1]["content"]})
+            response = agent_executor.invoke({"input": user_input})
             with st.chat_message("assistant"):
-                # Formater la réponse pour améliorer la présentation
                 formatted_response = response["output"]
-                # Ajouter le formatage Markdown pour améliorer la lisibilité
                 formatted_response = formatted_response.replace("Title:", "**Title:**")
                 formatted_response = formatted_response.replace("Abstract:", "**Abstract:**")
                 st.markdown(formatted_response)
+            st.session_state.messages.append({"role": "assistant", "content": formatted_response})
 
 
 # Onglet 3 - Trend Analysis
@@ -164,12 +155,12 @@ with tab3:
         # Sélecteurs de dates
         col1, col2 = st.columns(2)
         with col1:
-            start_year = st.slider("Start Year", 2009, 2023, 2009)
+            start_year = st.slider("Start Year", 1991, 2025, 2010)
         with col2:
-            end_year = st.slider("End Year", 2009, 2023, 2023)
+            end_year = st.slider("End Year", 1991, 2025, 2023)
         
         # Vérification que end_year >= start_year
-        if end_year < start_year:
+        if end_year <= start_year:
             st.error("End year must be greater than or equal to start year")
         else:
             if topic:
