@@ -96,8 +96,6 @@ with tab1:
 
 # Onglet 2 - Chat
 with tab2:
-    st.header("Chat with arXiv Bot!")
-
     # Sticky input style
     st.markdown("""
         <style>
@@ -120,6 +118,7 @@ with tab2:
             "role": "assistant",
             "content": "Hello! I'm your arXiv research assistant. I can help you find and understand research papers. What would you like to know?"
         }]
+    
 
     # Afficher l'historique
     for msg in st.session_state.messages:
@@ -134,7 +133,6 @@ with tab2:
             st.markdown(user_input)
         
         with st.spinner("The agent is thinking..."):
-            st.write("Agent response raw:", user_input)
             response = agent_executor.invoke({"input": user_input})
             with st.chat_message("assistant"):
                 formatted_response = response["output"]
